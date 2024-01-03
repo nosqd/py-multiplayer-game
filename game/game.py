@@ -33,16 +33,16 @@ class Game:
     players = []
     player: Player = None
 
-    def init(self, is_server: bool):
+    def init(self, host, port, is_server: bool):
         GAME_FACTORY["get_game"] = lambda: self
         self.is_server = is_server
         if is_server:
-            network = Server("127.0.0.1", 12345)
+            network = Server(host, port)
             network.on_packet(self.on_packet)
             self.server = network
             self.network = network
         else:
-            network = Client("127.0.0.1", 12345)
+            network = Client(host, port)
             network.on_packet(lambda packet: self.on_packet(network, packet))
             self.client = network
             self.network = network
@@ -125,7 +125,7 @@ class Game:
         return None
 
 
-def run():
+def run(host: str, port: int):
     mode = "client"
     if len(argv) == 2:
         if argv[1] == "server":
@@ -136,4 +136,4 @@ def run():
             print("Error: invalid mode")
             exit(1)
     print(f"Running as {mode.capitalize()}")
-    Game().init(is_server=(mode == "server"))
+    Game().init(host, port,is_server=(mode == "server"))
